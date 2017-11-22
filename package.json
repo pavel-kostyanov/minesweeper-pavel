@@ -1,0 +1,27 @@
+{
+  "name": "minesweeper",
+  "version": "1.0.0",
+  "description": "minesweeper game",
+  "main": "game.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "build": "babel src -d lib"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pavel-kostyanov/minesweeper-pavel.git"
+  },
+  "author": "pavel kostyanov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pavel-kostyanov/minesweeper-pavel/issues"
+  },
+  "homepage": "https://github.com/pavel-kostyanov/minesweeper-pavel#readme"
+}

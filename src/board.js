@@ -1,4 +1,5 @@
-export default Board;
+
+
 class Board {
   constructor(numberOfRows, numberOfColumns, numberOfBombs){
     this._numberOfBombs = numberOfBombs;
@@ -87,3 +88,4 @@ class Board {
 
 
 }//** end of class Board
+module.exports = Board;
