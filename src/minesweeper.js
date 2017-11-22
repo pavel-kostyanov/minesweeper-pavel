@@ -1,85 +1,134 @@
-
-
-
-const generatePlayerBoard = (numberOfRows, numberOfColumns) => {
-  let board = [];
-    for(let i = 0; i < numberOfRows; i++){
-      let row = [];
-      for(let j = 0; j < numberOfColumns; j++){
-        row.push(' ');
+class Game {
+  constructor(numberOfRows, numberOfColumns, numberOfBombs){
+    this._board = new Board(numberOfRows, numberOfColumns, numberOfBombs);
+  }
+  playMove(rowIndex, columnIndex){
+    this._board.flipTile(rowIndex, columnIndex);
+      if(this._board.playerBoard[rowIndex][columnIndex] === 'B'){
+        console.log('GAME OVER');
+        this._board.print();
+      }else if(!this._board.hasSafeTiles()){
+        console.log('You are winner');
+        this._board.print();
+      }else{
+        console.log('Current board');
+        this._board.print();
       }
-    board.push(row);
     }
+}
+//**************************************************
+//************  end of class Game*******************
+//**************************************************
 
-  return board;
-};
-
-
-const generateBombBoard = (numberOfRows, numberOfColumns, numberOfBombs) => {
-  let board = [];
+class Board {
+  constructor(numberOfRows, numberOfColumns, numberOfBombs){
+    this._numberOfBombs = numberOfBombs;
+    this._numberOfTiles = numberOfRows * numberOfColumns;
+    this._playerBoard = Board.generatePlayerBoard(numberOfRows, numberOfColumns);
+    this._bombBoard = Board.generateBombBoard(numberOfRows, numberOfColumns, numberOfBombs);
+  }
+  //*********************************************
+  print(){
+      console.log(this._playerBoard.map(row => row.join(' | ')).join('\n'));
+  }
+  //*********************************************
+  static generatePlayerBoard(numberOfRows, numberOfColumns){
+    let board = [];
       for(let i = 0; i < numberOfRows; i++){
         let row = [];
         for(let j = 0; j < numberOfColumns; j++){
-          row.push(null);
+          row.push(' ');
         }
       board.push(row);
       }
 
-  let numberOfBombsPlaced = 0;
-      while(numberOfBombsPlaced <= numberOfBombs){
-        let randomRowIndex = Math.floor(Math.random()*numberOfRows);
-        let randomColumnIndex = Math.floor(Math.random()*numberOfColumns );
-          if(board[randomRowIndex][randomColumnIndex] !== 'B'){
-            board[randomRowIndex][randomColumnIndex] = 'B';
-            numberOfBombsPlaced++;
-          }
-      }
-
-  return board;
-};
-
-
-const getNumberOfNeighborBombs = (bombBoard, rowIndex, columnIndex) => {
-    const neighborOffsets = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,1], [1,-1], [1,0], [1,1]];
-    const numberOfRows = bombBoard.length;
-    const numberOfColumns = bombBoard[1].length;
-    let numberOfBombs = 0;
-
-    neighborOffsets.forEach((offset) => {
-      const neighborRowIndex = rowIndex + offset[0];
-      const neighborColumnIndex = columnIndex + offset[1];
-        if(neighborRowIndex >= 0 && neighborColumnIndex >= 0 &&
-           neighborRowIndex < numberOfRows && neighborColumnIndex < numberOfColumns){
-             if(bombBoard[neighborRowIndex][neighborColumnIndex] == 'B'){
-               return numberOfBombs++;
-             }
-           }
-    });
-    return numberOfBombs;
-};
-
-const flipTile = (playerBoard, bombBoard, rowIndex, columnIndex) => {
-  if(playerBoard[rowIndex][columnIndex] !== ' '){
-    console.log('This tile has already been flipped!');
-    return;
-  }else if (bombBoard[rowIndex][columnIndex] === 'B') {
-    playerBoard[rowIndex][columnIndex] = 'B';
-  }else {
-    playerBoard[rowIndex][columnIndex] = getNumberOfNeighborBombs(bombBoard, rowIndex, columnIndex);
+    return board;
   }
-};
+  //*********************************************
+  static generateBombBoard(numberOfRows, numberOfColumns, numberOfBombs){
+    let board = [];
+        for(let i = 0; i < numberOfRows; i++){
+          let row = [];
+          for(let j = 0; j < numberOfColumns; j++){
+            row.push(null);
+          }
+        board.push(row);
+        }
+
+    let numberOfBombsPlaced = 0;
+        while(numberOfBombsPlaced <= numberOfBombs){
+          let randomRowIndex = Math.floor(Math.random()*numberOfRows);
+          let randomColumnIndex = Math.floor(Math.random()*numberOfColumns );
+            if(board[randomRowIndex][randomColumnIndex] !== 'B'){
+              board[randomRowIndex][randomColumnIndex] = 'B';
+              numberOfBombsPlaced++;
+            }
+        }
+
+    return board;
+  };
+  //*********************************************
+  get playerBoard(){return this._playerBoard}
+  get bombBoard(){return this._bombBoard}
+  //*********************************************
+  flipTile(rowIndex, columnIndex){
+    if(this._playerBoard[rowIndex][columnIndex] !== ' '){
+      console.log('This tile has already been flipped!');
+      return;
+    }else if (this._bombBoard[rowIndex][columnIndex] === 'B') {
+      this._playerBoard[rowIndex][columnIndex] = 'B';
+    }else {
+      this._playerBoard[rowIndex][columnIndex] = this.getNumberOfNeighborBombs(rowIndex, columnIndex);
+    }
+    this._numberOfTiles--;
+  }
+  //*********************************************
+  getNumberOfNeighborBombs(rowIndex, columnIndex){
+      const neighborOffsets = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,1], [1,-1], [1,0], [1,1]];
+      const numberOfRows = this._bombBoard.length;
+      const numberOfColumns = this._bombBoard[1].length;
+      let numberOfBombs = 0;
+
+      neighborOffsets.forEach((offset) => {
+        const neighborRowIndex = rowIndex + offset[0];
+        const neighborColumnIndex = columnIndex + offset[1];
+          if(neighborRowIndex >= 0 && neighborColumnIndex >= 0 &&
+             neighborRowIndex < numberOfRows && neighborColumnIndex < numberOfColumns){
+               if(this._bombBoard[neighborRowIndex][neighborColumnIndex] == 'B'){
+                 return numberOfBombs++;
+               }
+             }
+      });
+      return numberOfBombs;
+  }
+  //*********************************************
+  hasSafeTiles(){
+    return (this._numberOfTiles !== this._numberOfBombs);
+  }
 
 
-let playerBoard = generatePlayerBoard(3, 4);
-let bombBoard = generateBombBoard(3, 4, 4);
+}//** end of class Board
 
-let printBoard = (board) => {
-  return board.map(row => row.join(' | ')).join('\n');
-};
+const g = new Game(4, 4, 5);
+g.playMove(1,2);
 
-console.log('Player board: \n'+ printBoard(playerBoard));
-console.log('Bomb Board: \n'+ printBoard(bombBoard));
 
-flipTile(playerBoard, bombBoard, 0,0);
-console.log('Updated Player Board: ');
-console.log('Player board: \n'+ printBoard(playerBoard));
+
+
+
+
+
+
+// let playerBoard = generatePlayerBoard(3, 4);
+// let bombBoard = generateBombBoard(3, 4, 4);
+//
+// let printBoard = (board) => {
+//   return board.map(row => row.join(' | ')).join('\n');
+// };
+//
+// console.log('Player board: \n'+ printBoard(playerBoard));
+// console.log('Bomb Board: \n'+ printBoard(bombBoard));
+//
+// flipTile(playerBoard, bombBoard, 0,0);
+// console.log('Updated Player Board: ');
+// console.log('Player board: \n'+ printBoard(playerBoard));
